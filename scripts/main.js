@@ -28,6 +28,7 @@ const boxHeight = 50;
 const padding = 4;
 
 let guesses = [];
+// TODO: pull answer from an array of possible words (generate manually for now, api later)
 let answer = "FAITH";
 let letterBoxes = [];
 let letterToDelete;
@@ -89,14 +90,19 @@ function removeLastLetter() {
   // find the last letterBox that is not locked due to submitted guess
   // TODO: should sort these to ensure proper order, but trusting javascript for now
   const lastLetter = letterBoxes.filter(l => l.letter && !l.locked).at(-1);
-  console.log(lastLetter);
   if (lastLetter) lastLetter.letter = undefined;
 }
 
 function submitGuess() {
   if (guesses.length < 6) {
-    console.log(`submitting guess for row ${guesses.length + 1}`);
+    
     const currentRow = letterBoxes.filter(l => l.y === guesses.length )
+
+    if (currentRow.filter(l => !l.letter).length > 0) {
+      console.log('not all letters provided!');
+      return;
+    }
+    
     let word = "";
    
     currentRow.forEach(r => {
@@ -109,21 +115,20 @@ function submitGuess() {
       r.locked = true;
     });
 
-    // store guess in array
-    guesses.push(word);
+    console.log(`submitting guess for row ${guesses.length + 1}: ${word}`);
     
+    // store guess in array
+    guesses.push(word);    
   }
 }
 
 
 // adding event listeners
 document.addEventListener('keypress', (event) => {
-  console.log(JSON.stringify(event.key));
+  // console.log(JSON.stringify(event.key));
   // make sure only letters are inserted
   if (event.key.length === 1 && event.key.match(/[a-z]/i)) {
     addLetter(event.key.toUpperCase());
-  } else if (event.key.toUpperCase() === 'DELETE' || event.key.toUpperCase() === 'BACKSPACE') {
-    removeLastLetter();
   }
 });
 
